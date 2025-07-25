@@ -10,15 +10,15 @@ class SharedData
 {
     public static function all(): array
     {
-        return [
-            'csrf' => csrf_token(),
+        return array_merge([
+            'csrf' => fn () => self::csrf(),
             'navigations' => fn () => self::navigations(),
             'globals' => fn () => self::globals(),
             'old' => fn () => self::old(),
             'fullPath' => fn () => request()->fullUrl(),
             'locale' => fn () => self::locale(),
             // ...
-        ];
+        ]);
     }
 
     protected static function navigations(): array
@@ -49,6 +49,15 @@ class SharedData
     protected static function locale(): string
     {
         return str_replace('_', '-', app()->getLocale());
+    }
+
+    protected static function csrf(): string
+    {
+        if (! app()->bound('session')) {
+            return '';
+        }
+
+        return csrf_token();
     }
 
     protected static function resolveTree(array $tree): array
