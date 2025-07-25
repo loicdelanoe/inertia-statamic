@@ -2,6 +2,10 @@
 
 All notable changes to `inertia-statamic` will be documented in this file.
 
+## 0.0.4 - 2025-07-25
+
+- Fix nav item when collection is a page
+
 ## 0.0.3 - 2025-07-25
 
 - Fix csrf token
