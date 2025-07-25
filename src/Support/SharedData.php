@@ -8,16 +8,20 @@ use Statamic\Facades\Nav;
 
 class SharedData
 {
-    public static function all()
+    public static function all(): array
     {
         return [
+            'csrf' => csrf_token(),
             'navigations' => fn () => self::navigations(),
             'globals' => fn () => self::globals(),
+            'old' => fn () => self::old(),
+            'fullPath' => fn () => request()->fullUrl(),
+            'locale' => fn () => self::locale(),
             // ...
         ];
     }
 
-    public static function navigations(): array
+    protected static function navigations(): array
     {
         return Nav::all()
             ->mapWithKeys(fn ($nav) => [$nav->handle => self::resolveTree($nav->trees()->get('default')->tree())])
@@ -37,6 +41,16 @@ class SharedData
         return $globals;
     }
 
+    protected static function old(): array
+    {
+        return session()->getOldInput();
+    }
+
+    protected static function locale(): string
+    {
+        return str_replace('_', '-', app()->getLocale());
+    }
+
     protected static function resolveTree(array $tree): array
     {
         return collect($tree)->map(fn ($item) => self::resolveItem($item))->toArray();
@@ -49,7 +63,6 @@ class SharedData
 
             $item = array_merge($item, [
                 'title' => $entry->title,
-                // 'url' => $entry->slug === 'home' ? '/' : "/{$entry->slug}",
                 'url' => self::resolveSlug($entry),
             ]);
 
