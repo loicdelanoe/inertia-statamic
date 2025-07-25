@@ -2,9 +2,9 @@
 
 namespace InertiaStatamic\InertiaStatamic;
 
+use InertiaStatamic\InertiaStatamic\Commands\InertiaStatamicCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use InertiaStatamic\InertiaStatamic\Commands\InertiaStatamicCommand;
 
 class InertiaStatamicServiceProvider extends PackageServiceProvider
 {

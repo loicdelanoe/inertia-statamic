@@ -3,8 +3,8 @@
 namespace InertiaStatamic\InertiaStatamic\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Orchestra\Testbench\TestCase as Orchestra;
 use InertiaStatamic\InertiaStatamic\InertiaStatamicServiceProvider;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
