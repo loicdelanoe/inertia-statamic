@@ -89,7 +89,7 @@ class SharedData
     {
         $collectionName = strtolower($entry->collection->handle);
 
-        if ($collectionName === 'pages') {
+        if ($collectionName === 'page') {
             return $entry->slug === 'home' ? '/' : "/{$entry->slug}";
         }
 
