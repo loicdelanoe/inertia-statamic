@@ -13,7 +13,7 @@ class InertiaStatamicServiceProvider extends PackageServiceProvider
 {
     public function bootingPackage()
     {
-        $this->app[Kernel::class]->prependMiddlewareToGroup('web', InertiaStatamic::class);
+        $this->app[Kernel::class]->appendMiddlewareToGroup('web', InertiaStatamic::class);
 
         $this->app->booted(function () {
             Inertia::share(SharedData::all());
