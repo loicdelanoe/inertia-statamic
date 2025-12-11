@@ -5,6 +5,7 @@ namespace InertiaStatamic\InertiaStatamic\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Str;
 use Statamic\Entries\Entry;
 use Statamic\Structures\Page;
 
@@ -17,9 +18,9 @@ class InertiaStatamic
      */
     public function handle(Request $request, Closure $next)
     {
-        $queryString = $request->getRequestUri() ? str_replace('?' . $request->getQueryString(), '', $request->getRequestUri()) : '/index';
+        $path = $this->normalizePath($request->path());
 
-        $page = Entry::findByUri($queryString);
+        $page = Entry::findByUri($path);
 
         if (! ($page instanceof Page || $page instanceof Entry)) {
             return $next($request);
@@ -39,5 +40,17 @@ class InertiaStatamic
         $values = $data->toAugmentedArray();
 
         return $values['blueprint']->raw()->contents()['title'];
+    }
+
+    /**
+     * Normalize the given path.
+     */
+    protected function normalizePath(string $path): string
+    {
+        if ($path === '/' || $path === '') {
+            return '/';
+        }
+
+        return Str::start($path, '/');
     }
 }
