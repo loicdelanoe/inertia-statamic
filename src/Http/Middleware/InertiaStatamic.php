@@ -2,16 +2,10 @@
 
 namespace InertiaStatamic\InertiaStatamic\Http\Middleware;
 
-use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
-use JsonSerializable;
 use Statamic\Entries\Entry;
-use Statamic\Facades\Data;
-use Statamic\Fields\Value;
 use Statamic\Structures\Page;
 
 class InertiaStatamic
@@ -23,9 +17,9 @@ class InertiaStatamic
      */
     public function handle(Request $request, Closure $next)
     {
-        $queryString = $request->getRequestUri() ? str_replace('?'.$request->getQueryString(), '', $request->getRequestUri()) : '/index';
+        $queryString = $request->getRequestUri() ? str_replace('?' . $request->getQueryString(), '', $request->getRequestUri()) : '/index';
 
-        $page = Data::findByUri($queryString);
+        $page = Entry::findByUri($queryString);
 
         if (! ($page instanceof Page || $page instanceof Entry)) {
             return $next($request);
@@ -33,7 +27,7 @@ class InertiaStatamic
 
         return Inertia::render(
             $this->buildComponentPath($page),
-            ['content' => $this->buildProps($page)]
+            ['content' => $page->toAugmentedArray()]
         );
     }
 
@@ -45,41 +39,5 @@ class InertiaStatamic
         $values = $data->toAugmentedArray();
 
         return $values['blueprint']->raw()->contents()['title'];
-    }
-
-    /**
-     * Convert the Statamic object into props.
-     *
-     * @return array|Carbon|mixed
-     */
-    protected function buildProps($data)
-    {
-        if ($data instanceof Carbon) {
-            return $data;
-        }
-
-        if ($data instanceof JsonSerializable || $data instanceof Collection) {
-            return $this->buildProps($data->jsonSerialize());
-        }
-
-        if (is_array($data)) {
-            return collect($data)->map(function ($value) {
-                return $this->buildProps($value);
-            })->all();
-        }
-
-        if ($data instanceof Value) {
-            return $data->value();
-        }
-
-        if (is_object($data) && method_exists($data, 'toAugmentedArray')) {
-            return $this->buildProps($data->toAugmentedArray());
-        }
-
-        if (gettype($data) === 'string' && Str::isUuid($data)) {
-            $data = Data::find($data);
-        }
-
-        return $data;
     }
 }
