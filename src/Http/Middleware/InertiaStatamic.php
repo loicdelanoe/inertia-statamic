@@ -4,8 +4,8 @@ namespace InertiaStatamic\InertiaStatamic\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 use Statamic\Entries\Entry;
 use Statamic\Structures\Page;
 
