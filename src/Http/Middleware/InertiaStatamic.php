@@ -35,11 +35,9 @@ class InertiaStatamic
     /**
      * Build the path for the component based on Pages Blueprint Name
      */
-    protected function buildComponentPath($data): string
+    protected function buildComponentPath($entry): string
     {
-        $values = $data->toAugmentedArray();
-
-        return $values['blueprint']->raw()->contents()['title'];
+        return $entry->blueprint['title'];
     }
 
     /**
