@@ -28,6 +28,7 @@ class InertiaStatamicServiceProvider extends PackageServiceProvider
          * More info: https://github.com/spatie/laravel-package-tools
          */
         $package
-            ->name('inertia-statamic');
+            ->name('inertia-statamic')
+            ->hasConfigFile();
     }
 }

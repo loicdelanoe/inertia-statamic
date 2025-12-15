@@ -2,6 +2,7 @@
 
 namespace InertiaStatamic\InertiaStatamic\Support;
 
+use Illuminate\Support\Str;
 use Statamic\Facades\Entry;
 use Statamic\Facades\GlobalSet;
 use Statamic\Facades\Nav;
@@ -11,20 +12,23 @@ class SharedData
     public static function all(): array
     {
         return array_merge([
-            'csrf' => fn () => self::csrf(),
-            'navigations' => fn () => self::navigations(),
-            'globals' => fn () => self::globals(),
-            'old' => fn () => self::old(),
-            'fullPath' => fn () => request()->fullUrl(),
-            'locale' => fn () => self::locale(),
+            'csrf' => fn() => self::csrf(),
+            'navigations' => fn() => self::navigations(),
+            'globals' => fn() => self::globals(),
+            'old' => fn() => self::old(),
+            'fullPath' => fn() => request()->fullUrl(),
+            'locale' => fn() => self::locale(),
+            'pageLocale' => fn() => self::pageLocale(),
             // ...
         ]);
     }
 
     protected static function navigations(): array
     {
+        // dd(Nav::all()->first()->trees()->get('default')->tree());
+
         return Nav::all()
-            ->mapWithKeys(fn ($nav) => [$nav->handle => self::resolveTree($nav->trees()->get('default')->tree())])
+            ->mapWithKeys(fn($nav) => [$nav->handle => self::resolveTree($nav->trees()->get('default')->tree())])
             ->toArray();
     }
 
@@ -60,9 +64,28 @@ class SharedData
         return csrf_token();
     }
 
+    protected static function pageLocale(): string
+    {
+        $path = request()->path();
+
+        if ($path === '' || $path === '/') {
+            $path = '/';
+        } else {
+            $path = Str::start($path, '/');
+        }
+
+        $page = Entry::findByUri($path);
+
+        if (! $page || ! $page->lang) {
+            return app()->getLocale();
+        }
+
+        return $page->lang;
+    }
+
     protected static function resolveTree(array $tree): array
     {
-        return collect($tree)->map(fn ($item) => self::resolveItem($item))->toArray();
+        return collect($tree)->map(fn($item) => self::resolveItem($item))->toArray();
     }
 
     protected static function resolveItem(array $item): array
@@ -70,9 +93,10 @@ class SharedData
         if (isset($item['entry'])) {
             $entry = Entry::find($item['entry']);
 
+
             $item = array_merge($item, [
                 'title' => $entry->title,
-                'url' => self::resolveSlug($entry),
+                'url' => $entry->url(),
             ]);
 
             unset($item['entry']);

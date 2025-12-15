@@ -5,6 +5,7 @@ namespace InertiaStatamic\InertiaStatamic\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Uri;
 use Inertia\Inertia;
 use Statamic\Entries\Entry;
 use Statamic\Structures\Page;
@@ -19,6 +20,14 @@ class InertiaStatamic
     public function handle(Request $request, Closure $next)
     {
         $path = $this->normalizePath($request->path());
+
+        if (config('inertia-statamic.multi_lingual')) {
+            $locale = Uri::of($path)->pathSegments()->first();
+
+            if (in_array($locale, config('inertia-statamic.supported_locales'))) {
+                app()->setLocale($locale);
+            }
+        }
 
         $page = Entry::findByUri($path);
 
