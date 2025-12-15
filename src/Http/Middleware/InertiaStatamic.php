@@ -35,6 +35,10 @@ class InertiaStatamic
             return $next($request);
         }
 
+        if (!$page->published()) {
+            return $next($request);
+        }
+
         return Inertia::render(
             $this->buildComponentPath($page),
             ['content' => $page->toAugmentedArray()]
