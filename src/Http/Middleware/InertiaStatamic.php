@@ -36,7 +36,7 @@ class InertiaStatamic
             return $next($request);
         }
 
-        if (!$page->published() && !Auth::check()) {
+        if (! $page->published() && ! Auth::check()) {
             return $next($request);
         }
 

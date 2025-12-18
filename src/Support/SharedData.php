@@ -12,13 +12,13 @@ class SharedData
     public static function all(): array
     {
         return array_merge([
-            'csrf' => fn() => self::csrf(),
-            'navigations' => fn() => self::navigations(),
-            'globals' => fn() => self::globals(),
-            'old' => fn() => self::old(),
-            'fullPath' => fn() => request()->fullUrl(),
-            'locale' => fn() => self::locale(),
-            'pageLocale' => fn() => self::pageLocale(),
+            'csrf' => fn () => self::csrf(),
+            'navigations' => fn () => self::navigations(),
+            'globals' => fn () => self::globals(),
+            'old' => fn () => self::old(),
+            'fullPath' => fn () => request()->fullUrl(),
+            'locale' => fn () => self::locale(),
+            'pageLocale' => fn () => self::pageLocale(),
             // ...
         ]);
     }
@@ -28,7 +28,7 @@ class SharedData
         // dd(Nav::all()->first()->trees()->get('default')->tree());
 
         return Nav::all()
-            ->mapWithKeys(fn($nav) => [$nav->handle => self::resolveTree($nav->trees()->get('default')->tree())])
+            ->mapWithKeys(fn ($nav) => [$nav->handle => self::resolveTree($nav->trees()->get('default')->tree())])
             ->toArray();
     }
 
@@ -85,14 +85,13 @@ class SharedData
 
     protected static function resolveTree(array $tree): array
     {
-        return collect($tree)->map(fn($item) => self::resolveItem($item))->toArray();
+        return collect($tree)->map(fn ($item) => self::resolveItem($item))->toArray();
     }
 
     protected static function resolveItem(array $item): array
     {
         if (isset($item['entry'])) {
             $entry = Entry::find($item['entry']);
-
 
             $item = array_merge($item, [
                 'title' => $entry->title,
