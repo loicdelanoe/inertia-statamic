@@ -4,6 +4,7 @@ namespace InertiaStatamic\InertiaStatamic\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Uri;
 use Inertia\Inertia;
@@ -35,7 +36,7 @@ class InertiaStatamic
             return $next($request);
         }
 
-        if (!$page->published()) {
+        if (!$page->published() && !Auth::check()) {
             return $next($request);
         }
 
