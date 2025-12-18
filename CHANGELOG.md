@@ -2,6 +2,10 @@
 
 All notable changes to `inertia-statamic` will be documented in this file.
 
+## v0.0.6 - 2025-12-18
+
+**Full Changelog**: https://github.com/loicdelanoe/inertia-statamic/compare/v0.0.5...v0.0.6
+
 ## 0.0.4 - 2025-07-25
 
 - Fix nav item when collection is a page
