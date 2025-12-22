@@ -40,9 +40,11 @@ class InertiaStatamic
             return $next($request);
         }
 
+        $request->attributes->set('page', $page);
+
         return Inertia::render(
             $this->buildComponentPath($page),
-            ['content' => $page->toAugmentedArray()]
+            ['content' => $page->toAugmentedCollection()]
         );
     }
 
