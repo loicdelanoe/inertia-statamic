@@ -32,11 +32,7 @@ class InertiaStatamic
 
         $page = Entry::findByUri($path);
 
-        if (! ($page instanceof Page || $page instanceof Entry)) {
-            return $next($request);
-        }
-
-        if (! $page->published() && ! Auth::check()) {
+        if ($this->shouldSkipRequest($page)) {
             return $next($request);
         }
 
@@ -66,5 +62,20 @@ class InertiaStatamic
         }
 
         return Str::start($path, '/');
+    }
+
+    protected function isInvalidPage($page): bool
+    {
+        return ! ($page instanceof Page || $page instanceof Entry);
+    }
+
+    protected function isUnauthorized($page): bool
+    {
+        return ! $page->published() && ! Auth::check();
+    }
+
+    protected function shouldSkipRequest($page): bool
+    {
+        return $this->isInvalidPage($page) || $this->isUnauthorized($page);
     }
 }
