@@ -2,7 +2,6 @@
 
 namespace InertiaStatamic\InertiaStatamic\Support;
 
-use Illuminate\Support\Str;
 use Statamic\Facades\Entry;
 use Statamic\Facades\GlobalSet;
 use Statamic\Facades\Nav;
@@ -19,17 +18,34 @@ class SharedData
             'fullPath' => fn () => request()->fullUrl(),
             'locale' => fn () => self::locale(),
             'pageLocale' => fn () => self::pageLocale(),
+            'relatedTranslations' => fn () => self::relatedTranslations(),
+            'editUrl' => fn () => self::editUrl(),
+            'published' => fn () => self::published(),
             // ...
         ]);
     }
 
     protected static function navigations(): array
     {
-        // dd(Nav::all()->first()->trees()->get('default')->tree());
+        return Nav::all()->mapWithKeys(function ($nav) {
+            $tree = $nav->trees()->get('default')->tree();
 
-        return Nav::all()
-            ->mapWithKeys(fn ($nav) => [$nav->handle => self::resolveTree($nav->trees()->get('default')->tree())])
-            ->toArray();
+            $entryIds = collect($tree)->pluck('entry')->toArray();
+
+            $entries = Entry::whereInId($entryIds);
+
+            $navItem = [];
+
+            foreach ($entries as $entry) {
+                $navItem[] = [
+                    'id' => $entry->id(),
+                    'title' => $entry->title,
+                    'url' => $entry->url(),
+                ];
+            }
+
+            return [$nav->handle => $navItem];
+        })->toArray();
     }
 
     protected static function globals(): array
@@ -39,7 +55,7 @@ class SharedData
         foreach (GlobalSet::all() as $globalSet) {
             $handle = $globalSet->handle();
             $localized = $globalSet->in('default');
-            $globals[$handle] = $localized ? $localized->toAugmentedArray() : [];
+            $globals[$handle] = $localized ? $localized->data()->all() : [];
         }
 
         return $globals;
@@ -66,15 +82,7 @@ class SharedData
 
     protected static function pageLocale(): string
     {
-        $path = request()->path();
-
-        if ($path === '' || $path === '/') {
-            $path = '/';
-        } else {
-            $path = Str::start($path, '/');
-        }
-
-        $page = Entry::findByUri($path);
+        $page = request()->attributes->get('page');
 
         if (! $page || ! $page->lang) {
             return app()->getLocale();
@@ -83,39 +91,40 @@ class SharedData
         return $page->lang;
     }
 
-    protected static function resolveTree(array $tree): array
+    protected static function editUrl(): ?string
     {
-        return collect($tree)->map(fn ($item) => self::resolveItem($item))->toArray();
+        $page = request()->attributes->get('page');
+
+        return $page ? $page->edit_url : null;
     }
 
-    protected static function resolveItem(array $item): array
+    protected static function published(): ?bool
     {
-        if (isset($item['entry'])) {
-            $entry = Entry::find($item['entry']);
+        $page = request()->attributes->get('page');
 
-            $item = array_merge($item, [
-                'title' => $entry->title,
-                'url' => $entry->url(),
-            ]);
-
-            unset($item['entry']);
-        }
-
-        if (! empty($item['children'])) {
-            $item['children'] = self::resolveTree($item['children']);
-        }
-
-        return $item;
+        return $page ? $page->published : null;
     }
 
-    protected static function resolveSlug($entry): string
+    protected static function relatedTranslations(): array
     {
-        $collectionName = strtolower($entry->collection->handle);
+        $page = request()->attributes->get('page');
 
-        if ($collectionName === 'page') {
-            return $entry->slug === 'home' ? '/' : "/{$entry->slug}";
+        if (! $page || ! $page->related_translations) {
+            return [];
         }
 
-        return "/{$collectionName}/{$entry->slug}";
+        return collect($page->related_translations)->map(function ($translation) {
+            if (
+                ! isset($translation->language['value']) ||
+                ! isset($translation->entry['permalink'])
+            ) {
+                return null;
+            }
+
+            return [
+                'lang' => $translation->language['value'],
+                'url' => $translation->entry['permalink'],
+            ];
+        })->filter()->values()->toArray();
     }
 }
