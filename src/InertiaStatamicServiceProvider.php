@@ -29,6 +29,7 @@ class InertiaStatamicServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('inertia-statamic')
-            ->hasConfigFile();
+            ->hasConfigFile()
+            ->hasRoute('web');
     }
 }
