@@ -5,6 +5,7 @@ namespace InertiaStatamic\InertiaStatamic\Support;
 use Statamic\Facades\Entry;
 use Statamic\Facades\GlobalSet;
 use Statamic\Facades\Nav;
+use Statamic\Facades\Site;
 
 class SharedData
 {
@@ -18,17 +19,16 @@ class SharedData
             'fullPath' => fn () => request()->fullUrl(),
             'locale' => fn () => self::locale(),
             'pageLocale' => fn () => self::pageLocale(),
-            'relatedTranslations' => fn () => self::relatedTranslations(),
             'editUrl' => fn () => self::editUrl(),
             'published' => fn () => self::published(),
             // ...
-        ]);
+        ], Multilingual::enabled() ? ['relatedTranslations' => fn () => self::relatedTranslations()] : []);
     }
 
     protected static function navigations(): array
     {
         return Nav::all()->mapWithKeys(function ($nav) {
-            $tree = $nav->trees()->get('default')->tree();
+            $tree = $nav->trees()->get(Site::current()->handle())->tree();
 
             $entryIds = collect($tree)->pluck('entry')->toArray();
 

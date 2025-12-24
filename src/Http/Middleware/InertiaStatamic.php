@@ -6,8 +6,8 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Illuminate\Support\Uri;
 use Inertia\Inertia;
+use InertiaStatamic\InertiaStatamic\Support\Multilingual;
 use Statamic\Entries\Entry;
 use Statamic\Structures\Page;
 
@@ -23,10 +23,10 @@ class InertiaStatamic
         $path = $this->normalizePath($request->path());
 
         if (config('inertia-statamic.multi_lingual')) {
-            $locale = Uri::of($path)->pathSegments()->first();
+            $locale = Multilingual::getLocaleByPath($path);
 
             if (in_array($locale, config('inertia-statamic.supported_locales'))) {
-                app()->setLocale($locale);
+                Multilingual::setCurrentLocale($locale);
             }
         }
 

@@ -13,7 +13,9 @@ class FormHandle extends Controller
     {
         $form = Form::find($handle);
 
-        if ($request->filled($form->honeypot())) {
+        $honeypot = $form->honeypot();
+
+        if ($request->filled($honeypot)) {
             return back();
         }
 
