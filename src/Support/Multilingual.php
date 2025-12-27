@@ -2,7 +2,6 @@
 
 namespace InertiaStatamic\InertiaStatamic\Support;
 
-use Illuminate\Support\Arr;
 use Illuminate\Support\Uri;
 
 class Multilingual
@@ -33,6 +32,6 @@ class Multilingual
 
         $supportedLocales = config('inertia-statamic.supported_locales');
 
-        return Arr::exists($supportedLocales, $firstSegment) ? $firstSegment : null;
+        return in_array($firstSegment, $supportedLocales) ? $firstSegment : null;
     }
 }
