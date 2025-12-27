@@ -2,6 +2,7 @@
 
 namespace InertiaStatamic\InertiaStatamic\Support;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Uri;
 
 class Multilingual
@@ -13,7 +14,7 @@ class Multilingual
 
     public static function setCurrentLocale(string $locale)
     {
-        app()->setLocale($locale);
+        App::setLocale($locale);
     }
 
     /**
@@ -32,6 +33,6 @@ class Multilingual
 
         $supportedLocales = config('inertia-statamic.supported_locales');
 
-        return in_array($firstSegment, $supportedLocales) ? $firstSegment : null;
+        return in_array($firstSegment, $supportedLocales) ? $firstSegment : app()->getLocale();
     }
 }

@@ -4,10 +4,10 @@ namespace InertiaStatamic\InertiaStatamic\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
-use InertiaStatamic\InertiaStatamic\Support\Multilingual;
 use Statamic\Entries\Entry;
 use Statamic\Structures\Page;
 
@@ -22,25 +22,23 @@ class InertiaStatamic
     {
         $path = $this->normalizePath($request->path());
 
-        if (config('inertia-statamic.multi_lingual')) {
-            $locale = Multilingual::getLocaleByPath($path);
-
-            if (in_array($locale, config('inertia-statamic.supported_locales'))) {
-                Multilingual::setCurrentLocale($locale);
-            }
-        }
-
         $page = Entry::findByUri($path);
 
         if ($this->shouldSkipRequest($page)) {
             return $next($request);
         }
 
+        $pageContent = $page->toAugmentedCollection();
+
+        $locale = $this->getPageLocale($pageContent) ?? config('app.locale');
+
+        App::setLocale($locale);
+
         $request->attributes->set('page', $page);
 
         return Inertia::render(
             $this->buildComponentPath($page),
-            ['content' => $page->toAugmentedCollection()]
+            ['content' => $pageContent]
         );
     }
 
@@ -77,5 +75,10 @@ class InertiaStatamic
     protected function shouldSkipRequest($page): bool
     {
         return $this->isInvalidPage($page) || $this->isUnauthorized($page);
+    }
+
+    protected function getPageLocale($page): string
+    {
+        return $page['lang']->raw();
     }
 }
