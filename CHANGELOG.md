@@ -2,6 +2,14 @@
 
 All notable changes to `inertia-statamic` will be documented in this file.
 
+## v0.0.92 - 2026-01-06
+
+### What's Changed
+
+* chore(deps): bump dependabot/fetch-metadata from 2.4.0 to 2.5.0 by @dependabot[bot] in https://github.com/loicdelanoe/inertia-statamic/pull/6
+
+**Full Changelog**: https://github.com/loicdelanoe/inertia-statamic/compare/v0.0.91...v0.0.92
+
 ## v0.0.91 - 2025-12-27
 
 **Full Changelog**: https://github.com/loicdelanoe/inertia-statamic/compare/v0.0.9...v0.0.91
