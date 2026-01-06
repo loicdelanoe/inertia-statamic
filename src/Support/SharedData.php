@@ -77,7 +77,7 @@ class SharedData
             return '';
         }
 
-        return csrf_token();
+        return csrf_token() ?? '';
     }
 
     protected static function pageLocale(): string
