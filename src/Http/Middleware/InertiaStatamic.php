@@ -3,6 +3,7 @@
 namespace InertiaStatamic\InertiaStatamic\Http\Middleware;
 
 use Closure;
+use Facades\Statamic\CP\LivePreview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +23,9 @@ class InertiaStatamic
     {
         $path = $this->normalizePath($request->path());
 
-        $page = Entry::findByUri($path);
+        $page = $request->statamicToken()
+            ? LivePreview::item($request->statamicToken())
+            : Entry::findByUri($path);
 
         if ($this->shouldSkipRequest($page)) {
             return $next($request);
